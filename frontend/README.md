@@ -1,4 +1,4 @@
-# Deep Learner AI - Frontend
+# Intellex AI- Frontend
 
 Modern, responsive frontend for the AI Study Buddy application built with Next.js 16, TypeScript, and Tailwind CSS.
 
