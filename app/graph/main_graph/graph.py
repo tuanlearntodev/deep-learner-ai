@@ -1,10 +1,12 @@
 from langgraph.graph import StateGraph, END
+from langgraph.checkpoint.redis import RedisSaver
 from app.graph.main_graph.state import AgentState
 from app.graph.main_graph.node import node_rag_bridge, node_conversation
 from app.graph.main_graph.chain.route import routing_chain, Router
+from app.settings import settings
 
-# Initialize RedisSaver with URL directly
-# saver = RedisSaver(redis_url=settings.REDIS_URL)
+# Initialize RedisSaver with Redis URL string
+saver = RedisSaver(settings.REDIS_URL)
 
 def router(state: AgentState) -> str:
     """
@@ -12,8 +14,10 @@ def router(state: AgentState) -> str:
     """
     print("---MAIN GRAPH: Routing---")
     question = state["messages"][-1].content
-    route: Router = routing_chain.invoke({"question": question})
+    subject = state.get("subject", "general learning")
+    route: Router = routing_chain.invoke({"question": question, "subject": subject})
     print(f"Router Decision: {route.node}")
+    print(f"Subject Context: {subject}")
     return route.node
     
 
@@ -38,5 +42,4 @@ builder.add_edge("rag_node", END)
 builder.add_edge("chat_node", END)
 
 
-main_graph = builder.compile()
-main_graph.get_graph.draw_mermaid_png(output_file_path="graph_workflow.png")
+main_graph = builder.compile(checkpointer=saver)
