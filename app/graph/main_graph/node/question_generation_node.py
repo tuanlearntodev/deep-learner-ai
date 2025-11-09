@@ -20,7 +20,7 @@ def node_question_generation_bridge(state: AgentState) -> Dict[str, Any]:
     # Get other state variables
     workspace_id = state.get("workspace_id", "")
     web_search = state.get("web_search", False)
-    crag = state.get("crag", True)
+    crag = state.get("crag", False)  # Use False as default to match main graph
     subject = state.get("subject", "general learning")
     
     print(f"Question/Topic: {question}")
@@ -50,13 +50,16 @@ def node_question_generation_bridge(state: AgentState) -> Dict[str, Any]:
         generation = "I don't have enough information in the documents to generate meaningful questions about this topic."
         response_type = "text"
     else:
-        # Detect if it's JSON (quiz format) or plain text (open-ended questions)
+        # Detect if it's JSON (quiz/flashcard format) or plain text (open-ended questions)
         import json
         try:
             parsed = json.loads(generation)
             if isinstance(parsed, list) and len(parsed) > 0:
+                # Check if it's flashcard format (has type, front, back, category)
+                if all(key in parsed[0] for key in ["type", "front", "back", "category"]) and parsed[0]["type"] == "flashcard":
+                    response_type = "flashcard"
                 # Check if it's quiz format (has type, question, options, correctAnswer)
-                if all(key in parsed[0] for key in ["type", "question", "options", "correctAnswer"]):
+                elif all(key in parsed[0] for key in ["type", "question", "options", "correctAnswer"]):
                     response_type = "quiz"
                 else:
                     response_type = "questions"

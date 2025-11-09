@@ -12,7 +12,7 @@ llm = ChatGoogleGenerativeAI(
 system_template = """You are an expert question generator. Generate educational questions based ONLY on the provided context.
 
 Question Generation Rules:
-1. Generate 5-10 diverse questions covering the main concepts
+1. Generate 5 diverse questions covering the main concepts
 2. Mix question types: factual, conceptual, analytical, and application-based
 3. Questions must be answerable using ONLY the provided context
 4. Include varying difficulty levels: easy, medium, hard
@@ -28,6 +28,7 @@ Requirements:
 - Base questions strictly on context below
 - If context is insufficient, state: "Not enough context to generate meaningful questions."
 - No commentary—only the numbered question list
+- Create number of questions based on the user prompt first, if not give the default: 5
 
 Context:
 {context}"""

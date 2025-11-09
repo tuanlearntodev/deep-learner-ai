@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class RouteGeneration(BaseModel):
-    generation_type: Literal["open_ended", "multiple_choice"] = Field(
-        description="Question type: 'open_ended' for general questions, 'multiple_choice' for quiz/test"
+    generation_type: Literal["open_ended", "multiple_choice", "flashcard"] = Field(
+        description="Question type: 'open_ended' for general questions, 'multiple_choice' for quiz/test, 'flashcard' for flashcards"
     )
     
 llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite", temperature=0)
@@ -15,6 +15,7 @@ structured_llm_router = llm.with_structured_output(RouteGeneration)
 
 system = """Route question requests to the appropriate generation type:
 
+'flashcard' → flashcards, flash cards, study cards, cards for studying, memorization cards
 'multiple_choice' → quiz, test, MCQ, exam, assessment
 'open_ended' → general questions, discussion, study questions (default)"""
 

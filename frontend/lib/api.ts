@@ -38,7 +38,7 @@ interface ChatResponse {
   user_message: ChatMessage;
   ai_message: ChatMessage;
   subject: string | null;
-  response_type: 'text' | 'questions' | 'quiz';
+  response_type: 'text' | 'questions' | 'quiz' | 'evaluation' | 'flashcard';
   questions: Question[] | null;
 }
 
@@ -190,7 +190,7 @@ class ApiClient {
     });
   }
 
-  async getChatHistory(workspaceId: number, limit: number = 50): Promise<ChatMessage[]> {
+  async getChatHistory(workspaceId: number, limit: number = 150): Promise<ChatMessage[]> {
     console.log('API: Fetching chat history for workspace:', workspaceId);
     const response: any = await this.request(`/chat/history/${workspaceId}?limit=${limit}`);
     console.log('API: Chat history response:', response);

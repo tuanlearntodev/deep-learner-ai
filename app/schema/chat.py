@@ -19,8 +19,8 @@ class ChatMessageResponse(ChatMessageBase):
 class ChatRequest(BaseModel):
     workspace_id: int = Field(..., description="Workspace ID for the chat")
     message: str = Field(..., min_length=1, description="User message")
-    web_search: Optional[bool] = Field(default=False, description="Enable web search")
-    crag: Optional[bool] = Field(default=False, description="Enable corrective RAG")
+    web_search: bool = Field(default=False, description="Enable web search for all operations")
+    crag: bool = Field(default=False, description="Enable corrective RAG (document quality checking)")
 
 class ChatResponse(BaseModel):
     workspace_id: int

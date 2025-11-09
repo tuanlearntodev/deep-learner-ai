@@ -11,6 +11,7 @@ class MultipleChoiceQuestion(BaseModel):
     question: str = Field(description="The quiz question")
     options: List[str] = Field(description="List of 4 answer options")
     correctAnswer: str = Field(description="The correct answer from the options")
+    explanation: str = Field(description="Clear explanation of why the correct answer is right and why other options are wrong")
 
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
@@ -41,11 +42,17 @@ Return a JSON array of quiz objects. Each object must have:
 - question: The question text
 - options: Array of exactly 4 answer choices
 - correctAnswer: The correct option (must match one of the options exactly)
+- explanation: Detailed explanation of why the correct answer is right, including:
+  * The key concept or principle
+  * Why the correct answer is accurate based on the context
+  * Why the other options are incorrect (common misconceptions)
+  * Additional learning points if relevant
 
 Requirements:
 - Base ALL questions strictly on context below
 - If context is insufficient, return empty array []
 - No commentary - only valid JSON array
+- Explanations should be educational and help reinforce learning
 
 Context:
 {context}

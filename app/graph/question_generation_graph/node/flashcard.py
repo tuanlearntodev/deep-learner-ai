@@ -2,18 +2,19 @@ from typing import Any, Dict
 import json
 import re
 from app.graph.question_generation_graph.state import QuestionGraphState
-from app.graph.question_generation_graph.chain.multiple_choice import multiple_choice_chain
+from app.graph.question_generation_graph.chain.flashcard import flashcard_chain
 
 
 def extract_question_count(prompt: str, default: int = 7) -> int:
-    """Extract the number of questions requested from the user prompt."""
-    # Look for patterns like "5 questions", "quiz me with 10", "generate 3 questions", etc.
+    """Extract the number of questions/cards requested from the user prompt."""
+    # Look for patterns like "5 flashcards", "10 cards", "generate 3 flashcards", etc.
     patterns = [
-        r'(\d+)\s*questions?',  # "5 questions" or "5 question"
-        r'quiz\s+(?:me\s+)?(?:with\s+)?(\d+)',  # "quiz me with 5" or "quiz 5"
+        r'(\d+)\s*(?:flash)?cards?',  # "5 flashcards" or "5 cards"
+        r'(\d+)\s*questions?',  # "5 questions"
+        r'quiz\s+(?:me\s+)?(?:with\s+)?(\d+)',  # "quiz me with 5"
         r'generate\s+(\d+)',  # "generate 5"
         r'create\s+(\d+)',  # "create 5"
-        r'give\s+(?:me\s+)?(\d+)',  # "give me 5" or "give 5"
+        r'give\s+(?:me\s+)?(\d+)',  # "give me 5"
     ]
     
     for pattern in patterns:
@@ -22,30 +23,30 @@ def extract_question_count(prompt: str, default: int = 7) -> int:
             count = int(match.group(1))
             # Validate the count (between 1 and 20 to be reasonable)
             if 1 <= count <= 20:
-                print(f"📊 Detected request for {count} questions")
+                print(f"📊 Detected request for {count} flashcards")
                 return count
     
-    print(f"📊 No specific count found, using default: {default} questions")
+    print(f"📊 No specific count found, using default: {default} flashcards")
     return default
 
 
-def generate_multiple_choice(state: QuestionGraphState) -> Dict[str, Any]:
-    print("--Generate Multiple Choice Questions---")
+def generate_flashcards(state: QuestionGraphState) -> Dict[str, Any]:
+    print("--Generate Flashcards---")
     question = state["question"]  # This is the topic/subject
     documents = state["documents"]
     
-    # Extract the number of questions from the user's prompt
+    # Extract the number of flashcards from the user's prompt
     num_questions = extract_question_count(question, default=7)
 
     try:
         # Invoke the chain with format_instructions
         from langchain_core.output_parsers import JsonOutputParser
-        from app.graph.question_generation_graph.chain.multiple_choice import MultipleChoiceQuestion
+        from app.graph.question_generation_graph.chain.flashcard import Flashcard
         
-        parser = JsonOutputParser(pydantic_object=MultipleChoiceQuestion)
+        parser = JsonOutputParser(pydantic_object=Flashcard)
         format_instructions = parser.get_format_instructions()
         
-        result = multiple_choice_chain.invoke({
+        result = flashcard_chain.invoke({
             "question": question, 
             "context": documents,
             "format_instructions": format_instructions,
@@ -63,10 +64,10 @@ def generate_multiple_choice(state: QuestionGraphState) -> Dict[str, Any]:
             generation = str(result)
             answer_found = False
             
-        print(f"✅ Generated {len(result) if isinstance(result, list) else 1} multiple choice questions")
+        print(f"✅ Generated {len(result) if isinstance(result, list) else 1} flashcards")
         
     except Exception as e:
-        print(f"❌ Error generating multiple choice questions: {e}")
+        print(f"❌ Error generating flashcards: {e}")
         generation = json.dumps([])
         answer_found = False
     

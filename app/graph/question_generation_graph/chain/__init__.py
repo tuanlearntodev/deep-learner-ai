@@ -5,6 +5,7 @@ from .hallucination_checker import CheckHallucination, hallucination_checker
 from .router import RouteQuery, question_router
 from .multiple_choice import MultipleChoiceQuestion, multiple_choice_chain
 from .generation_router import RouteGeneration, generation_router
+from .flashcard import Flashcard, flashcard_chain
 
 __all__ = [
     "CheckAnswer",
@@ -13,6 +14,7 @@ __all__ = [
     "RouteQuery",
     "MultipleChoiceQuestion",
     "RouteGeneration",
+    "Flashcard",
     "answer_checker",
     "document_checker",
     "generation_chain",
@@ -20,4 +22,5 @@ __all__ = [
     "question_router",
     "multiple_choice_chain",
     "generation_router",
+    "flashcard_chain",
 ]

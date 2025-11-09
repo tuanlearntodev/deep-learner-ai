@@ -13,7 +13,7 @@ def get_chat_history(
     db: Session, 
     workspace_id: int, 
     user_id: int,
-    limit: Optional[int] = 50
+    limit: Optional[int] = 150
 ) -> List[ChatMessage]:
     workspace = db.query(Workspace).filter(
         Workspace.id == workspace_id,
@@ -74,8 +74,17 @@ def process_chat_message(
     
     subject = workspace.subject or "general learning"
     
+    # Load previous chat history from database
+    previous_messages = get_chat_history(db, workspace_id, user_id, limit=150)
+    
+    # Convert to LangChain messages and add current message
+    langchain_messages = convert_to_langchain_messages(previous_messages)
+    langchain_messages.append(HumanMessage(content=user_message))
+    
+    print(f"💬 Loaded {len(previous_messages)} previous messages from database")
+    
     state: AgentState = {
-        "messages": [HumanMessage(content=user_message)],
+        "messages": langchain_messages,
         "workspace_id": str(workspace_id),
         "web_search": web_search,
         "crag": crag,
@@ -92,29 +101,39 @@ def process_chat_message(
     # Extract response type from message metadata
     response_type = ai_message.additional_kwargs.get("response_type", "text") if hasattr(ai_message, "additional_kwargs") else "text"
     
-    # Parse JSON questions if applicable
+    # Parse JSON questions/evaluation if applicable
     import json
     questions_data = None
-    if response_type in ["questions", "quiz"]:
+    
+    # For evaluation responses, keep the JSON content as-is for frontend
+    if response_type == "evaluation":
+        # Evaluation data is already in JSON format in the content
+        # Frontend will parse it, so we don't need questions_data
+        pass
+    elif response_type in ["questions", "quiz", "flashcard"]:
         try:
             questions_data = json.loads(ai_response)
         except json.JSONDecodeError:
             # If JSON parsing fails, treat as text
             response_type = "text"
     
+    print(f"💾 Saving user message to database...")
     user_msg = save_message(
         db=db,
         workspace_id=workspace_id,
         role="user",
         content=user_message
     )
+    print(f"✅ User message saved with ID: {user_msg.id}")
     
+    print(f"💾 Saving AI message to database (type: {response_type})...")
     ai_msg = save_message(
         db=db,
         workspace_id=workspace_id,
         role="assistant",
         content=ai_response
     )
+    print(f"✅ AI message saved with ID: {ai_msg.id}")
     
     return user_msg, ai_msg, response_type, questions_data
 

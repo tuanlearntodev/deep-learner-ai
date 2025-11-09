@@ -13,7 +13,8 @@ from app.graph.question_generation_graph.node import (
     document_check,
     web_search,
     generate_questions,
-    generate_multiple_choice
+    generate_multiple_choice,
+    generate_flashcards
 )
 from app.graph.question_generation_graph.state import QuestionGraphState
 load_dotenv()
@@ -21,6 +22,7 @@ load_dotenv()
 RETRIEVE = "retrieve"
 GENERATE_QUESTIONS = "generate_questions"
 GENERATE_MULTIPLE_CHOICE = "generate_multiple_choice"
+GENERATE_FLASHCARDS = "generate_flashcards"
 DOCUMENT_CHECK = "document_check"
 WEB_SEARCH = "web_search"
 
@@ -50,7 +52,10 @@ def route_generation_type(state: QuestionGraphState) -> str:
         "subject": subject
     })
     
-    if route.generation_type == "multiple_choice":
+    if route.generation_type == "flashcard":
+        print("--Routing to Flashcard Generation---")
+        return GENERATE_FLASHCARDS
+    elif route.generation_type == "multiple_choice":
         print("--Routing to Multiple Choice Generation---")
         return GENERATE_MULTIPLE_CHOICE
     else:
@@ -110,6 +115,7 @@ workflow.add_node(RETRIEVE, retrieve)
 workflow.add_node(WEB_SEARCH, web_search)
 workflow.add_node(GENERATE_QUESTIONS, generate_questions)
 workflow.add_node(GENERATE_MULTIPLE_CHOICE, generate_multiple_choice)
+workflow.add_node(GENERATE_FLASHCARDS, generate_flashcards)
 workflow.add_node(DOCUMENT_CHECK, document_check)
 
 workflow.set_conditional_entry_point(
@@ -126,6 +132,7 @@ workflow.add_conditional_edges(
       DOCUMENT_CHECK: DOCUMENT_CHECK,
       GENERATE_QUESTIONS: GENERATE_QUESTIONS,
       GENERATE_MULTIPLE_CHOICE: GENERATE_MULTIPLE_CHOICE,
+      GENERATE_FLASHCARDS: GENERATE_FLASHCARDS,
   }
 )
 workflow.add_conditional_edges(
@@ -135,6 +142,7 @@ workflow.add_conditional_edges(
       WEB_SEARCH: WEB_SEARCH,
       GENERATE_QUESTIONS: GENERATE_QUESTIONS,
       GENERATE_MULTIPLE_CHOICE: GENERATE_MULTIPLE_CHOICE,
+      GENERATE_FLASHCARDS: GENERATE_FLASHCARDS,
   }
 )
 
@@ -145,6 +153,7 @@ workflow.add_conditional_edges(
   {
       GENERATE_QUESTIONS: GENERATE_QUESTIONS,
       GENERATE_MULTIPLE_CHOICE: GENERATE_MULTIPLE_CHOICE,
+      GENERATE_FLASHCARDS: GENERATE_FLASHCARDS,
   }
 )
 
@@ -165,6 +174,17 @@ workflow.add_conditional_edges(
   {
       "relevant": END,
       "not_relevant": GENERATE_MULTIPLE_CHOICE,
+      "not_grounded": WEB_SEARCH,
+      "not_found": END,
+  }
+)
+
+workflow.add_conditional_edges(
+  GENERATE_FLASHCARDS,
+  check_hallucination_and_answer,
+  {
+      "relevant": END,
+      "not_relevant": GENERATE_FLASHCARDS,
       "not_grounded": WEB_SEARCH,
       "not_found": END,
   }

@@ -91,7 +91,7 @@ async def get_workspace_chat_history(
     workspace_id: int,
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db),
-    limit: Optional[int] = Query(50, ge=1, le=500, description="Maximum number of messages to return")
+    limit: Optional[int] = Query(150, ge=1, le=500, description="Maximum number of messages to return")
 ):
     if not check_workspace_exists(db, workspace_id, current_user.id):
         raise HTTPException(

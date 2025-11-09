@@ -63,23 +63,32 @@ export default function WorkspacesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A0F1E' }}>
+        <div className="text-xl font-semibold" style={{ color: '#C4872C' }}>Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen" style={{ background: '#0A0F1E' }}>
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-10">
           <div>
-            <h1 className="text-4xl font-bold text-gray-800">My Workspaces</h1>
-            <p className="text-gray-600 mt-2">Welcome back, {user?.full_name}!</p>
+            <h1 className="text-4xl font-bold" style={{ color: '#C4872C', fontFamily: 'var(--font-lora)' }}>My Workspaces</h1>
+            <p className="mt-2 text-lg" style={{ color: '#A0A8B8' }}>Welcome back, {user?.full_name}!</p>
           </div>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg transition-all shadow-md"
+            style={{ color: '#E0E5F1', background: '#141B2E' }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = '#1F2937';
+              e.currentTarget.style.color = '#C4872C';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = '#141B2E';
+              e.currentTarget.style.color = '#E0E5F1';
+            }}
           >
             <LogOut size={20} />
             Logout
@@ -90,10 +99,22 @@ export default function WorkspacesPage() {
           {/* Create New Workspace Card */}
           <button
             onClick={() => setShowModal(true)}
-            className="bg-white border-2 border-dashed border-indigo-300 rounded-xl p-8 hover:border-indigo-500 hover:bg-indigo-50 transition-all flex flex-col items-center justify-center min-h-[200px]"
+            className="border-2 border-dashed rounded-xl p-8 transition-all flex flex-col items-center justify-center min-h-[220px] shadow-lg hover:shadow-2xl"
+            style={{ 
+              background: '#141B2E', 
+              borderColor: '#C4872C' 
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.borderColor = '#A67324';
+              e.currentTarget.style.background = '#1F2937';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.borderColor = '#C4872C';
+              e.currentTarget.style.background = '#141B2E';
+            }}
           >
-            <Plus size={48} className="text-indigo-500 mb-3" />
-            <span className="text-lg font-semibold text-gray-700">Create Workspace</span>
+            <Plus size={52} style={{ color: '#C4872C' }} className="mb-4" />
+            <span className="text-lg font-semibold" style={{ color: '#E0E5F1' }}>Create Workspace</span>
           </button>
 
           {/* Workspace Cards */}
@@ -101,47 +122,68 @@ export default function WorkspacesPage() {
             <button
               key={workspace.id}
               onClick={() => handleSelectWorkspace(workspace)}
-              className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all text-left"
+              className="rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all text-left border"
+              style={{ background: '#141B2E', borderColor: '#1F2937' }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = '#1F2937';
+                e.currentTarget.style.borderColor = '#C4872C';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = '#141B2E';
+                e.currentTarget.style.borderColor = '#1F2937';
+              }}
             >
               <div className="flex items-start justify-between mb-4">
-                <div className="bg-indigo-100 p-3 rounded-lg">
-                  <BookOpen size={24} className="text-indigo-600" />
+                <div className="p-3 rounded-lg shadow-md" style={{ background: '#C4872C' }}>
+                  <BookOpen size={24} style={{ color: '#FFFFFF' }} />
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">{workspace.name}</h3>
-              <p className="text-gray-600">{workspace.subject}</p>
+              <h3 className="text-xl font-bold mb-2" style={{ color: '#E0E5F1', fontFamily: 'var(--font-lora)' }}>{workspace.name}</h3>
+              <p className="text-base" style={{ color: '#A0A8B8' }}>{workspace.subject}</p>
             </button>
           ))}
         </div>
 
         {/* Create Workspace Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl p-8 max-w-md w-full">
-              <h2 className="text-2xl font-bold mb-6">Create New Workspace</h2>
-              <form onSubmit={handleCreate} className="space-y-4">
+          <div className="fixed inset-0 flex items-center justify-center p-4 z-50" style={{ background: 'rgba(0, 0, 0, 0.85)' }}>
+            <div className="rounded-2xl p-8 max-w-md w-full shadow-2xl border" style={{ background: '#141B2E', borderColor: '#1F2937' }}>
+              <h2 className="text-2xl font-bold mb-6" style={{ color: '#C4872C', fontFamily: 'var(--font-lora)' }}>Create New Workspace</h2>
+              <form onSubmit={handleCreate} className="space-y-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold mb-2" style={{ color: '#A0A8B8' }}>
                     Workspace Name
                   </label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900"
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 shadow-sm"
+                    style={{
+                      background: '#0A0F1E',
+                      color: '#E0E5F1',
+                      borderColor: '#1F2937',
+                      outlineColor: '#C4872C'
+                    }}
                     placeholder="e.g., Biology 101"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold mb-2" style={{ color: '#A0A8B8' }}>
                     Subject
                   </label>
                   <input
                     type="text"
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900"
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 shadow-sm"
+                    style={{
+                      background: '#0A0F1E',
+                      color: '#E0E5F1',
+                      borderColor: '#1F2937',
+                      outlineColor: '#C4872C'
+                    }}
                     placeholder="e.g., Biology"
                     required
                   />
@@ -150,13 +192,27 @@ export default function WorkspacesPage() {
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex-1 px-4 py-3 border rounded-lg transition-all shadow-md"
+                    style={{ 
+                      background: '#0A0F1E', 
+                      color: '#E0E5F1',
+                      borderColor: '#1F2937'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.background = '#141B2E'}
+                    onMouseOut={(e) => e.currentTarget.style.background = '#0A0F1E'}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                    className="flex-1 px-4 py-3 rounded-lg transition-all shadow-lg"
+                    style={{ 
+                      background: '#C4872C',
+                      color: '#FFFFFF',
+                      fontWeight: '600'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.background = '#A67324'}
+                    onMouseOut={(e) => e.currentTarget.style.background = '#C4872C'}
                   >
                     Create
                   </button>
