@@ -1,7 +1,7 @@
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.redis import RedisSaver
 from app.graph.main_graph.state import AgentState
-from app.graph.main_graph.node import node_rag_bridge, node_conversation
+from app.graph.main_graph.node import node_rag_bridge, node_conversation, node_question_generation_bridge
 from app.graph.main_graph.chain.route import routing_chain, Router
 from app.settings import settings
 
@@ -28,19 +28,22 @@ builder = StateGraph(AgentState)
 # Add nodes
 builder.add_node("rag_node", node_rag_bridge)
 builder.add_node("chat_node", node_conversation)
+builder.add_node("question_generation_node", node_question_generation_bridge)
 
 # Set conditional entry point - routes directly to the appropriate node
 builder.set_conditional_entry_point(
     router,
     {
         "rag_node": "rag_node",
-        "chat_node": "chat_node"
+        "chat_node": "chat_node",
+        "question_generation_node": "question_generation_node"
     }
 )
 
-# Both nodes go directly to END
+# All nodes go directly to END
 builder.add_edge("rag_node", END)
 builder.add_edge("chat_node", END)
+builder.add_edge("question_generation_node", END)
 
 
 main_graph = builder.compile(checkpointer=checkpointer)
