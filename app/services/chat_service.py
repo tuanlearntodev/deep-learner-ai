@@ -86,7 +86,21 @@ def process_chat_message(
     
     result = main_graph.invoke(state, config)
     
-    ai_response = result["messages"][-1].content
+    ai_message = result["messages"][-1]
+    ai_response = ai_message.content
+    
+    # Extract response type from message metadata
+    response_type = ai_message.additional_kwargs.get("response_type", "text") if hasattr(ai_message, "additional_kwargs") else "text"
+    
+    # Parse JSON questions if applicable
+    import json
+    questions_data = None
+    if response_type in ["questions", "quiz"]:
+        try:
+            questions_data = json.loads(ai_response)
+        except json.JSONDecodeError:
+            # If JSON parsing fails, treat as text
+            response_type = "text"
     
     user_msg = save_message(
         db=db,
@@ -102,7 +116,7 @@ def process_chat_message(
         content=ai_response
     )
     
-    return user_msg, ai_msg
+    return user_msg, ai_msg, response_type, questions_data
 
 
 def clear_chat_history(

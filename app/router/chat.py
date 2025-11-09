@@ -37,7 +37,7 @@ async def send_chat_message(
             detail=f"Workspace with ID {chat_request.workspace_id} not found"
         )
     try:
-        user_msg, ai_msg = process_chat_message(
+        user_msg, ai_msg, response_type, questions_data = process_chat_message(
             db=db,
             workspace_id=chat_request.workspace_id,
             user_id=current_user.id,
@@ -63,7 +63,9 @@ async def send_chat_message(
                 role=ai_msg.role,
                 content=ai_msg.content
             ),
-            subject=workspace.subject if workspace else None
+            subject=workspace.subject if workspace else None,
+            response_type=response_type,
+            questions=questions_data
         )
     
     except ValueError as e:

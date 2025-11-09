@@ -48,11 +48,31 @@ def node_question_generation_bridge(state: AgentState) -> Dict[str, Any]:
     
     if not answer_found:
         generation = "I don't have enough information in the documents to generate meaningful questions about this topic."
+        response_type = "text"
+    else:
+        # Detect if it's JSON (quiz format) or plain text (open-ended questions)
+        import json
+        try:
+            parsed = json.loads(generation)
+            if isinstance(parsed, list) and len(parsed) > 0:
+                # Check if it's quiz format (has type, question, options, correctAnswer)
+                if all(key in parsed[0] for key in ["type", "question", "options", "correctAnswer"]):
+                    response_type = "quiz"
+                else:
+                    response_type = "questions"
+            else:
+                response_type = "text"
+        except (json.JSONDecodeError, KeyError, IndexError):
+            # Plain text questions
+            response_type = "questions"
     
-    # Create AI message with the generated questions
-    ai_message = AIMessage(content=generation)
+    # Create AI message with the generated questions and metadata
+    ai_message = AIMessage(
+        content=generation,
+        additional_kwargs={"response_type": response_type}
+    )
     
-    print(f"✅ Question Generation Complete")
+    print(f"✅ Question Generation Complete (type: {response_type})")
     
     return {
         "messages": [ai_message]

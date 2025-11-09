@@ -27,6 +27,8 @@ class ChatResponse(BaseModel):
     user_message: ChatMessageResponse
     ai_message: ChatMessageResponse
     subject: Optional[str] = Field(None, description="Workspace subject")
+    response_type: Optional[str] = Field(default="text", description="Response type: 'text', 'questions', or 'quiz'")
+    questions: Optional[List[dict]] = Field(None, description="Parsed JSON questions if response_type is 'questions' or 'quiz'")
 
 class ChatHistoryResponse(BaseModel):
     messages: List[ChatMessageResponse]
