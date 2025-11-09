@@ -1,9 +1,17 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app import __app_name__, __version__
 from app.database import Base, engine
+from app.router.auth import router as auth_router
+from app.middleware import (
+    RequestLoggingMiddleware,
+    RateLimitMiddleware,
+    ErrorHandlingMiddleware
+)
+import app.model  # noqa: F401
 
 
 
@@ -32,6 +40,23 @@ app = FastAPI(
     description="AI-powered learning assistant with LangGraph agents",
     lifespan=lifespan,
 )
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, specify exact origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Add custom middlewares (order matters - first added is outermost)
+app.add_middleware(ErrorHandlingMiddleware)
+app.add_middleware(RateLimitMiddleware, max_requests=100, window_seconds=60)
+app.add_middleware(RequestLoggingMiddleware)
+
+# Include routers
+app.include_router(auth_router)
 
 
 @app.get("/")

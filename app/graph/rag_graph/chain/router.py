@@ -12,27 +12,17 @@ class RouteQuery(BaseModel):
 )
     
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash", 
+    model="gemini-2.5-flash-lite", 
     temperature=0
 )
 
 structured_llm_router = llm.with_structured_output(RouteQuery)
 
-system = """Route questions to the best data source.
+system = """Route to best data source:
+- vector_store: questions about uploaded documents/course materials
+- web_search: current events, recent information, or when documents lack info"""
 
-'vector_store': Philosophy questions (concepts, theories, philosophers like Mill/Kant/Plato, ethics, metaphysics, epistemology, logic, political philosophy, moral reasoning, utilitarianism, deontology, virtue ethics, philosophy of mind/religion/science/language, philosophical texts)
-
-'web_search': Non-philosophy questions (current events, news, sports, science, technology, math, history, geography, how-to, general knowledge)
-
-Rules:
-1. Any philosophical topic/concept/philosopher → 'vector_store'
-2. Clearly non-philosophy → 'web_search'
-3. Vector store = philosophy course materials
-4. When unsure → 'vector_store'"""
-
-human = """Question: {question}
-
-Philosophy question? Route to 'vector_store'. Otherwise 'web_search'."""
+human = "{question}"
 
 route_prompt = ChatPromptTemplate.from_messages([
     ("system", system),

@@ -6,9 +6,10 @@ from app.database import Base
 class ChatMessage(Base):
     __tablename__ = "chat_messages"
     
-    id = Column(Integer, primary_key=True)
-    workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False)
+    id = Column(Integer, primary_key=True, index=True)
+    workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False, index=True)
     role = Column(String(50), nullable=False)  # e.g., 'user' or 'assistant'
     content = Column(Text, nullable=False)
 
-    workspace = relationship("Workspace", back_populates="chat_messages")
+    # Relationships - use lazy loading to avoid circular imports
+    workspace = relationship("Workspace", back_populates="chat_messages", lazy="select")

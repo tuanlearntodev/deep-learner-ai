@@ -115,6 +115,6 @@ workflow.add_conditional_edges(
   }
 )
 
-app = workflow.compile()
+rag_graph = workflow.compile()
 
-app.get_graph().draw_mermaid_png(output_file_path="graph_workflow.png")
+rag_graph.get_graph().draw_mermaid_png(output_file_path="rag_graph_workflow.png")

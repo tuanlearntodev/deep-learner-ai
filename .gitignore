@@ -1,4 +1,4 @@
-# Python-generated files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -7,10 +7,8 @@ __pycache__/
 *.egg-info/
 dist/
 build/
-wheels/
 *.whl
-pip-log.txt
-pip-delete-this-directory.txt
+.Python
 
 # Virtual environments
 .venv/
@@ -23,6 +21,7 @@ env/
 .env
 .env.local
 .env.*.local
+*.env
 
 # IDE / Editor
 .vscode/
@@ -31,9 +30,10 @@ env/
 *.swo
 *~
 .DS_Store
+*.code-workspace
 
 # Jupyter Notebook
-.ipynb_checkpoints
+.ipynb_checkpoints/
 *.ipynb
 
 # Database
@@ -42,42 +42,58 @@ env/
 *.sqlite3
 pgdata/
 postgres_data/
+*.sql
 
 # Docker
 docker-compose.override.yml
+*.dockerignore
 
 # Logs
 *.log
 logs/
+log/
 
 # Testing
 .pytest_cache/
 .coverage
+.coverage.*
 htmlcov/
 .tox/
 .mypy_cache/
 .ruff_cache/
+.hypothesis/
+*.cover
 
-# uv
+# Package managers
 uv.lock
+poetry.lock
+Pipfile.lock
 
-# LangSmith / LangChain
+# LangChain / LangSmith
 .langsmith/
+.langchain/
 
-# Vector stores
+# Vector stores / AI
 faiss_index/
 chroma_db/
+*.index
+*.faiss
 
 # Temporary files
 *.tmp
 *.bak
 *.swp
 .cache/
+temp/
+tmp/
 
 # OS files
 Thumbs.db
 .DS_Store
+desktop.ini
 
-# Graph visualizations (optional - remove if you want to commit them)
-*.png
-graph_workflow.png
+# Security
+*.pem
+*.key
+*.cert
+credentials.json

@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     # Redis
     REDIS_URL: str
     
+    # JWT Authentication
+    SECRET_KEY: str = "your-secret-key-change-this-in-production"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    
     # AI API Keys
     GOOGLE_API_KEY: str
     TAVILY_API_KEY: str | None = None
