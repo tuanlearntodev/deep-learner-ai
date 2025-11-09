@@ -63,7 +63,8 @@ def route_question(state: GraphState) -> str:
         return RETRIEVE
     
     question = state["question"]
-    source: RouteQuery = question_router.invoke({"question": question})
+    subject = state.get("subject", "general learning")
+    source: RouteQuery = question_router.invoke({"question": question, "subject": subject})
     if source.datasource == "web_search":
         print("--Routing to Web Search---")
         return WEB_SEARCH
@@ -116,5 +117,3 @@ workflow.add_conditional_edges(
 )
 
 rag_graph = workflow.compile()
-
-rag_graph.get_graph().draw_mermaid_png(output_file_path="rag_graph_workflow.png")

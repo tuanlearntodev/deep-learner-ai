@@ -5,8 +5,8 @@ from app.graph.main_graph.node import node_rag_bridge, node_conversation
 from app.graph.main_graph.chain.route import routing_chain, Router
 from app.settings import settings
 
-# Initialize RedisSaver with Redis URL string
-saver = RedisSaver(settings.REDIS_URL)
+# Initialize RedisSaver with URL directly
+saver = RedisSaver.from_conn_string(settings.REDIS_URL)
 
 def router(state: AgentState) -> str:
     """

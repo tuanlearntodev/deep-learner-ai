@@ -8,3 +8,4 @@ class GraphState(TypedDict):
     crag: bool
     documents: List[str]
     answer_found: bool
+    subject: str

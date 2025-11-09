@@ -21,7 +21,8 @@ def node_rag_bridge(state: AgentState) -> dict:
         answer_found=False,
         generation="",
         web_search=state["web_search"],
-        crag=state["crag"]
+        crag=state["crag"],
+        subject=state["subject"]
     )
     
     # 3. Invoke the sub-graph

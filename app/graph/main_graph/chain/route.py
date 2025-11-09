@@ -14,10 +14,12 @@ class Router(BaseModel):
     )
 
 
-# System prompt for the router
-ROUTER_SYSTEM_PROMPT = """Route queries: 
-- rag_node: questions about documents/information/facts
-- chat_node: greetings/casual chat"""
+# System prompt for the router with subject context
+ROUTER_SYSTEM_PROMPT = """You are a query router for a learning workspace focused on: {subject}
+
+Route queries:
+- rag_node: Questions about documents, information, or facts related to {subject}
+- chat_node: Greetings, casual chat, or general conversation related to {subject}"""
 
 # Create the prompt template
 router_prompt = ChatPromptTemplate.from_messages([

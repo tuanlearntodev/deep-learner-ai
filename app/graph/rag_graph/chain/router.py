@@ -18,9 +18,11 @@ llm = ChatGoogleGenerativeAI(
 
 structured_llm_router = llm.with_structured_output(RouteQuery)
 
-system = """Route to best data source:
-- vector_store: questions about uploaded documents/course materials
-- web_search: current events, recent information, or when documents lack info"""
+system = """You are routing queries for a workspace focused on: {subject}
+
+Route to best data source:
+- vector_store: Questions about uploaded documents/course materials related to {subject}
+- web_search: Current events, recent information about {subject}, or when documents lack info"""
 
 human = "{question}"
 

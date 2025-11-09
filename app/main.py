@@ -6,13 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app import __app_name__, __version__
 from app.database import Base, engine
 from app.router.auth import router as auth_router
-from app.middleware import (
-    RequestLoggingMiddleware,
-    RateLimitMiddleware,
-    ErrorHandlingMiddleware
-)
-import app.model  # noqa: F401
-
+from app.router.workspace import router as workspace_router
+from app.router.chat import router as chat_router
 
 
 @asynccontextmanager
@@ -50,13 +45,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Add custom middlewares (order matters - first added is outermost)
-app.add_middleware(ErrorHandlingMiddleware)
-app.add_middleware(RateLimitMiddleware, max_requests=100, window_seconds=60)
-app.add_middleware(RequestLoggingMiddleware)
-
 # Include routers
 app.include_router(auth_router)
+app.include_router(workspace_router)
+app.include_router(chat_router)
 
 
 @app.get("/")

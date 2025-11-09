@@ -10,3 +10,5 @@ class AgentState(TypedDict):
     web_search: bool
     
     crag: bool
+    
+    subject: str

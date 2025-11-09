@@ -5,10 +5,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-# System prompt for conversation
-CHAT_SYSTEM_PROMPT = """You are a helpful AI learning assistant. 
+# System prompt for conversation with subject focus
+CHAT_SYSTEM_PROMPT = """You are a helpful AI learning assistant for a workspace focused on: {subject}
+
 Answer questions naturally based on the conversation history.
-Be concise, friendly, and helpful."""
+Be concise, friendly, and helpful.
+
+IMPORTANT: Keep all responses relevant to {subject}. If the user asks about unrelated topics, politely guide them back to the subject."""
 
 # Create prompt with message history
 chat_prompt = ChatPromptTemplate.from_messages([
