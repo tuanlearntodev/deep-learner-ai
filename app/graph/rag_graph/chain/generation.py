@@ -9,7 +9,6 @@ llm = ChatGoogleGenerativeAI(
     temperature=0
 )
 
-# Adaptive RAG prompt - adjusts length based on question complexity
 system_template = """Answer using ONLY the provided context. Do not add external knowledge.
 
 Adaptive Length Rules:

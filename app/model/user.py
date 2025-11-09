@@ -12,5 +12,4 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True)
 
-    # Relationships - use lazy loading to avoid circular imports
     workspaces = relationship("Workspace", back_populates="user", lazy="select", cascade="all, delete-orphan")

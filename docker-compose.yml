@@ -17,7 +17,7 @@ services:
       retries: 5
 
   redis:
-    image: redis:7-alpine
+    image: redis/redis-stack-server:latest
     container_name: deep_learner_ai_v1_redis
     ports:
       - "6379:6379"
@@ -28,7 +28,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    command: redis-server --appendonly yes
+    environment:
+      - REDIS_ARGS=--appendonly yes
 
   app:
     build: .
@@ -46,6 +47,14 @@ services:
       redis:
         condition: service_healthy
     restart: unless-stopped
+    # GPU configuration
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
 
 volumes:
   postgres_data:

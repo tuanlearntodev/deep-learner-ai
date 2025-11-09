@@ -8,8 +8,7 @@ class ChatMessage(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False, index=True)
-    role = Column(String(50), nullable=False)  # e.g., 'user' or 'assistant'
+    role = Column(String(50), nullable=False)
     content = Column(Text, nullable=False)
 
-    # Relationships - use lazy loading to avoid circular imports
     workspace = relationship("Workspace", back_populates="chat_messages", lazy="select")

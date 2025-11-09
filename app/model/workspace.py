@@ -11,8 +11,6 @@ class Workspace(Base):
     subject = Column(String(255), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
 
-    # Relationships - use lazy loading to avoid circular imports
     user = relationship("User", back_populates="workspaces", lazy="select")
     chat_messages = relationship("ChatMessage", back_populates="workspace", lazy="select", cascade="all, delete-orphan")
     documents = relationship("Document", back_populates="workspace", lazy="select", cascade="all, delete-orphan")
-

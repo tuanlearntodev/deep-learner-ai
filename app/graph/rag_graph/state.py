@@ -9,3 +9,4 @@ class GraphState(TypedDict):
     documents: List[str]
     answer_found: bool
     subject: str
+    workspace_id: str

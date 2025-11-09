@@ -11,5 +11,4 @@ class Document(Base):
     workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False, index=True)
     status = Column(String(50), default="PENDING")
     
-    # Relationships - use lazy loading to avoid circular imports
     workspace = relationship("Workspace", back_populates="documents", lazy="select")

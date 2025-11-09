@@ -19,12 +19,10 @@ def decide_web_search(state: GraphState) -> str:
         return GENERATE_ANSWER
 
 def route_after_retrieve(state: GraphState) -> str:
-    """Route after retrieval based on CRAG flag"""
     if state.get("crag", True):
         return DOCUMENT_CHECK
     else:
         return GENERATE_ANSWER
-
 def check_hallucination_and_answer(state: GraphState) -> str:
     print("--Check Hallucination---")
     question = state["question"]

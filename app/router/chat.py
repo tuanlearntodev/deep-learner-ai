@@ -1,13 +1,6 @@
-"""
-Chat router for managing chat operations.
-
-Provides endpoints for sending messages and retrieving chat history.
-All endpoints require valid JWT authentication.
-"""
 from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-
 from app.schema.chat import (
     ChatRequest,
     ChatResponse,
@@ -38,25 +31,12 @@ async def send_chat_message(
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
 ):
-    """
-    Send a chat message and receive AI response.
-    
-    - **workspace_id**: ID of the workspace for this conversation
-    - **message**: User's message content
-    - **web_search**: Enable web search for additional context (default: False)
-    - **crag**: Enable corrective RAG for better accuracy (default: False)
-    
-    Returns both the user message and AI response, both saved to database.
-    """
-    # Verify workspace exists and belongs to user
     if not check_workspace_exists(db, chat_request.workspace_id, current_user.id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Workspace with ID {chat_request.workspace_id} not found"
         )
-    
     try:
-        # Process the message through the agent
         user_msg, ai_msg = process_chat_message(
             db=db,
             workspace_id=chat_request.workspace_id,
@@ -66,7 +46,6 @@ async def send_chat_message(
             crag=chat_request.crag
         )
         
-        # Get workspace to include subject in response
         from app.services.workspace_service import get_workspace_by_id
         workspace = get_workspace_by_id(db, chat_request.workspace_id, current_user.id)
         
@@ -112,21 +91,11 @@ async def get_workspace_chat_history(
     db: Session = Depends(get_db),
     limit: Optional[int] = Query(50, ge=1, le=500, description="Maximum number of messages to return")
 ):
-    """
-    Get chat history for a workspace.
-    
-    - **workspace_id**: ID of the workspace
-    - **limit**: Maximum number of messages to return (1-500, default: 50)
-    
-    Returns list of messages ordered chronologically.
-    """
-    # Verify workspace exists and belongs to user
     if not check_workspace_exists(db, workspace_id, current_user.id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Workspace with ID {workspace_id} not found"
         )
-    
     try:
         messages = get_chat_history(
             db=db,
@@ -167,20 +136,12 @@ async def clear_workspace_chat_history(
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
 ):
-    """
-    Clear all chat messages for a workspace.
-    
-    - **workspace_id**: ID of the workspace
-    
-    Returns 204 No Content on success.
-    """
     try:
         success = clear_chat_history(
             db=db,
             workspace_id=workspace_id,
             user_id=current_user.id
         )
-        
         if not success:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

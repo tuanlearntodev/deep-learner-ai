@@ -5,12 +5,10 @@ from .hallucination_checker import CheckHallucination, hallucination_checker
 from .router import RouteQuery, question_router
 
 __all__ = [
-    # Models
     "CheckAnswer",
     "CheckDocuments",
     "CheckHallucination",
     "RouteQuery",
-    # Chains
     "answer_checker",
     "document_checker",
     "generation_chain",

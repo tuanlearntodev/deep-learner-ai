@@ -8,6 +8,8 @@ from app.database import Base, engine
 from app.router.auth import router as auth_router
 from app.router.workspace import router as workspace_router
 from app.router.chat import router as chat_router
+from app.router.document import router as document_router
+from app.graph.main_graph.graph import checkpointer
 
 
 @asynccontextmanager
@@ -22,6 +24,7 @@ async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
     print("✅ Database tables created successfully")
     
+
     yield  # Application runs and serves requests
     
     # Shutdown: Cleanup logic (if needed)
@@ -49,6 +52,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(workspace_router)
 app.include_router(chat_router)
+app.include_router(document_router)
 
 
 @app.get("/")

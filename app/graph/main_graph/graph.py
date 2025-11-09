@@ -6,7 +6,8 @@ from app.graph.main_graph.chain.route import routing_chain, Router
 from app.settings import settings
 
 # Initialize RedisSaver with URL directly
-saver = RedisSaver.from_conn_string(settings.REDIS_URL)
+checkpointer_manager = RedisSaver.from_conn_string(settings.REDIS_URL)
+checkpointer = checkpointer_manager.__enter__()
 
 def router(state: AgentState) -> str:
     """
@@ -42,4 +43,4 @@ builder.add_edge("rag_node", END)
 builder.add_edge("chat_node", END)
 
 
-main_graph = builder.compile(checkpointer=saver)
+main_graph = builder.compile(checkpointer=checkpointer)

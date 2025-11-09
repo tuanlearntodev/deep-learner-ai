@@ -1,5 +1,21 @@
 # Multi-stage build for optimized image size
-FROM python:3.12-slim as builder
+# Using CUDA base image for GPU support
+FROM nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu22.04 as builder
+
+# Install Python 3.12
+RUN apt-get update && apt-get install -y \
+  software-properties-common \
+  && add-apt-repository ppa:deadsnakes/ppa \
+  && apt-get update && apt-get install -y \
+  python3.12 \
+  python3.12-dev \
+  python3.12-distutils \
+  python3-pip \
+  && rm -rf /var/lib/apt/lists/*
+
+# Set python3.12 as default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1 \
+  && update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
 
 # Set working directory
 WORKDIR /app
@@ -24,12 +40,27 @@ ENV PYTHONUNBUFFERED=1 \
 # Copy dependency files
 COPY pyproject.toml uv.lock* ./
 
-# Install dependencies
+# Install dependencies (including GPU-accelerated packages)
 RUN uv pip install --system --no-cache -r pyproject.toml && \
-  uv pip install --system --no-cache "uvicorn[standard]"
+  uv pip install --system --no-cache "uvicorn[standard]" && \
+  uv pip install --system --no-cache "unstructured-inference[gpu]"
 
 # Final stage
-FROM python:3.12-slim
+FROM nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu22.04
+
+# Install Python 3.12
+RUN apt-get update && apt-get install -y \
+  software-properties-common \
+  && add-apt-repository ppa:deadsnakes/ppa \
+  && apt-get update && apt-get install -y \
+  python3.12 \
+  python3.12-dev \
+  python3-pip \
+  && rm -rf /var/lib/apt/lists/*
+
+# Set python3.12 as default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1 \
+  && update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
 
 # Set working directory
 WORKDIR /app
@@ -38,6 +69,17 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
   libpq5 \
   curl \
+  libgl1 \
+  libglib2.0-0 \
+  libsm6 \
+  libxext6 \
+  libxrender-dev \
+  libgomp1 \
+  libmagic1 \
+  poppler-utils \
+  tesseract-ocr \
+  libreoffice \
+  pandoc \
   && rm -rf /var/lib/apt/lists/*
 
 # Copy Python packages from builder

@@ -1,13 +1,9 @@
-"""
-Authentication router for user signup, login, and profile management.
-"""
 from datetime import timedelta
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-
 from app.schema.auth import UserSignup, UserLogin, Token, UserResponse
 from app.services.dependencies import get_db, get_current_active_user
 from app.services.auth_service import (
@@ -32,7 +28,6 @@ async def signup(user_data: UserSignup, db: Session = Depends(get_db)):
         )
     
     try:
-        # Create new user
         new_user = create_user(
             db=db,
             email=user_data.email,
@@ -73,7 +68,6 @@ async def login(user_data: UserLogin, db: Session = Depends(get_db)):
             detail="Inactive user account"
         )
     
-    # Create access token
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.email, "user_id": user.id},
@@ -104,7 +98,6 @@ async def login_for_access_token(
             detail="Inactive user account"
         )
     
-    # Create access token
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.email, "user_id": user.id},

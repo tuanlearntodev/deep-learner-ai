@@ -79,6 +79,9 @@ chroma_db/
 *.index
 *.faiss
 
+# Document storage
+storage/
+
 # Temporary files
 *.tmp
 *.bak

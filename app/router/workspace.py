@@ -1,14 +1,7 @@
-"""
-Workspace router for managing user workspaces.
-
-Provides CRUD operations for workspace management with proper authentication
-and authorization. All endpoints require valid JWT authentication.
-"""
 from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-
 from app.schema.workspace import (
     WorkspaceCreate,
     WorkspaceUpdate,
@@ -44,14 +37,6 @@ async def create_new_workspace(
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
 ):
-    """
-    Create a new workspace.
-    
-    - **name**: Workspace name (1-255 characters)
-    - **subject**: Optional subject or topic for the workspace (helps provide context to agents)
-    
-    Returns the created workspace with ID.
-    """
     try:
         workspace = create_workspace(
             db=db,
@@ -66,13 +51,17 @@ async def create_new_workspace(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Workspace with this name already exists"
         )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Invalid request data. This endpoint expects JSON with 'name' and optional 'subject' fields. For file uploads, use POST /workspaces/{{workspace_id}}/documents/upload"
+        )
     except Exception as e:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error creating workspace: {str(e)}"
         )
-
 
 @router.get(
     "/",
@@ -87,15 +76,6 @@ async def list_user_workspaces(
     limit: int = Query(100, ge=1, le=100, description="Maximum number of records to return"),
     search: Optional[str] = Query(None, description="Search term for workspace name")
 ):
-    """
-    List all workspaces for the current user.
-    
-    - **skip**: Number of records to skip (pagination)
-    - **limit**: Maximum number of records to return (1-100)
-    - **search**: Optional search term to filter workspaces by name
-    
-    Returns a list of workspaces with pagination info.
-    """
     workspaces, total = get_workspaces_by_user(
         db=db,
         user_id=current_user.id,
@@ -103,7 +83,6 @@ async def list_user_workspaces(
         limit=limit,
         search=search
     )
-    
     return {
         "workspaces": workspaces,
         "total": total,
@@ -123,19 +102,11 @@ async def get_workspace(
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
 ):
-    """
-    Get a specific workspace by ID.
-    
-    - **workspace_id**: The ID of the workspace to retrieve
-    
-    Returns workspace details if found and owned by the user.
-    """
     workspace = get_workspace_by_id(
         db=db,
         workspace_id=workspace_id,
         user_id=current_user.id
     )
-    
     if not workspace:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -156,21 +127,11 @@ async def get_workspace_with_stats(
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
 ):
-    """
-    Get workspace with detailed statistics.
-    
-    - **workspace_id**: The ID of the workspace
-    
-    Returns workspace details including:
-    - Total number of messages
-    - Total number of documents
-    """
     workspace = get_workspace_details(
         db=db,
         workspace_id=workspace_id,
         user_id=current_user.id
     )
-    
     if not workspace:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -192,21 +153,11 @@ async def update_workspace_endpoint(
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
 ):
-    """
-    Update workspace properties.
-    
-    - **workspace_id**: The ID of the workspace to update
-    - **name**: New workspace name (optional)
-    
-    Returns the updated workspace.
-    """
-    # Check if workspace exists first
     if not check_workspace_exists(db, workspace_id, current_user.id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Workspace with ID {workspace_id} not found"
         )
-    
     try:
         workspace = update_workspace(
             db=db,
@@ -248,24 +199,12 @@ async def delete_workspace_endpoint(
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
 ):
-    """
-    Delete a workspace and all associated data.
-    
-    - **workspace_id**: The ID of the workspace to delete
-    
-    This will cascade delete all:
-    - Chat messages
-    - Documents
-    
-    Returns 204 No Content on success.
-    """
     try:
         success = delete_workspace(
             db=db,
             workspace_id=workspace_id,
             user_id=current_user.id
         )
-        
         if not success:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -293,19 +232,11 @@ async def check_workspace(
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
 ):
-    """
-    Check if a workspace exists.
-    
-    - **workspace_id**: The ID of the workspace to check
-    
-    Returns a boolean indicating existence.
-    """
     exists = check_workspace_exists(
         db=db,
         workspace_id=workspace_id,
         user_id=current_user.id
     )
-    
     return {
         "exists": exists,
         "workspace_id": workspace_id
@@ -322,20 +253,11 @@ async def get_workspace_memory_status(
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
 ):
-    """
-    Get Redis checkpoint memory status for a workspace.
-    
-    - **workspace_id**: The ID of the workspace
-    
-    Returns metadata about the conversation checkpoint in Redis.
-    """
-    # Verify workspace exists and belongs to user
     if not check_workspace_exists(db, workspace_id, current_user.id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Workspace with ID {workspace_id} not found"
         )
-    
     try:
         metadata = get_conversation_metadata(workspace_id, current_user.id)
         return metadata or {"error": "Could not retrieve memory metadata"}
@@ -357,23 +279,11 @@ async def clear_workspace_memory(
     current_user: Annotated[User, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
 ):
-    """
-    Clear Redis checkpoint memory for a workspace.
-    
-    This clears the conversation state in Redis but keeps the chat history in the database.
-    Useful for resetting the conversation context while preserving the message history.
-    
-    - **workspace_id**: The ID of the workspace
-    
-    Returns 204 No Content on success.
-    """
-    # Verify workspace exists and belongs to user
     if not check_workspace_exists(db, workspace_id, current_user.id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Workspace with ID {workspace_id} not found"
         )
-    
     try:
         success = clear_conversation_memory(workspace_id, current_user.id)
         if not success:

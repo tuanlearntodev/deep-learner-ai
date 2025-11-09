@@ -14,7 +14,6 @@ def generate_answer(state: GraphState) -> Dict[str, Any]:
 
     generation = generation_chain.invoke({"question": question, "context": documents})
     
-    # Check if answer indicates information not found
     answer_found = "information not available" not in generation.lower()
     
     return {"documents": documents, "question": question, "generation": generation, "answer_found": answer_found}

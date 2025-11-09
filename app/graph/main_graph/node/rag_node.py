@@ -5,31 +5,25 @@ from langchain_core.messages import AIMessage
 
 
 def node_rag_bridge(state: AgentState) -> dict:
-    """
-    This node in the main graph calls the RAG sub-graph.
-    """
     print("---MAIN GRAPH: Calling RAG Sub-Graph---")
-    
-    # 1. Get the user's question from the last message
     question = state["messages"][-1].content
+    workspace_id = state.get("workspace_id", "")
     
-    # 2. Prepare the input for the sub-graph
+    print(f"📂 RAG Bridge - Workspace ID: {workspace_id}")
+    
     sub_graph_input = GraphState(
         question=question,
-        # Set defaults for the sub-graph's state
         documents=[],
         answer_found=False,
         generation="",
         web_search=state["web_search"],
         crag=state["crag"],
-        subject=state["subject"]
+        subject=state["subject"],
+        workspace_id=workspace_id  # Pass workspace_id to RAG graph
     )
     
-    # 3. Invoke the sub-graph
     final_state = rag_graph.invoke(sub_graph_input)
     
-    # 4. Get the final answer
     answer = final_state["generation"]
     
-    # 5. Return the answer as AIMessage
     return {"messages": [AIMessage(content=answer)]}
